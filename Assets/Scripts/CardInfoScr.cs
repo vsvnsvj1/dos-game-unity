@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -7,26 +8,27 @@ using TMPro;
 public class CardInfoScr : MonoBehaviour
 {
     public Card selfCard;
-    public Image Logo;
-    public TextMeshProUGUI Name;
-
-    public void HideCardInfo(Card card)
-    {
-        selfCard = card;
-        Name.text = "";
-        Logo.sprite = null;
-    }
+    public new TextMeshProUGUI name;
+    public RawImage logo;
+    public GameObject HideObj;
 
     public void ShowCardInfo(Card card)
     {
+        HideObj.SetActive(false);
         selfCard = card;
-        Name.text = card.Name;
-        Logo.sprite = card.Logo;
-        Logo.preserveAspect = true; // сохранение стророн спрайта
+        logo.texture = card.Logo;
+        name.text = card.Name;
     }
+
+    public void HideCardInfo(Card card)
+    {
+        selfCard = card; 
+        HideObj.SetActive(true);
+    }
+
 
     public void Start()
     {
-       // ShowCardInfo(CardManager.allCards[transform.GetSiblingIndex()]);
+        //ShowCardInfo(CardManager.AllCards[transform.GetSiblingIndex()]);
     }
 }
