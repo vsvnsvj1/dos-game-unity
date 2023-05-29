@@ -58,8 +58,9 @@ public class GameManagerScr : MonoBehaviour
     private int bonus1 = 0, bonus2 = 0;
     private int penalties;
 
-    public GameObject ResultGO;
+    public GameObject ResultGO,MenuGO;
     public TextMeshProUGUI ResultTXT;
+    public Button startButton, roolsButton;
 
 
  
@@ -117,13 +118,14 @@ public class GameManagerScr : MonoBehaviour
         EnemyHandCards.Clear();
         GameFieldCards.Clear();
         BufferFieldCards.Clear();
-        
-        startGame();
+        MenuGO.SetActive(true);
+        //startGame();
 
     }
 
-    void startGame()
+     public void startGame()
     {
+        MenuGO.SetActive(false);
         ResultGO.SetActive(false);
         currentGame = new Game();
         OnEndTurn.interactable = true;
@@ -136,13 +138,8 @@ public class GameManagerScr : MonoBehaviour
 
     void Start()
     {
-        startGame();
-        /*
-        GiveHandCards(ref currentGame.GameDeck, SelfHand);
-        int i = 0;
-        while (i++ < 7) currentGame.GameDeck.RemoveAt(0);
-        GiveHandCards(ref currentGame.GameDeck, EnemyHand);
-        */
+       // startGame();
+       MenuGO.SetActive(true);
     }
     
     void GiveCards(ref List<Card> deck, Transform hand,int countOfCards)
@@ -160,7 +157,7 @@ public class GameManagerScr : MonoBehaviour
         GameObject cardGo = Instantiate(CardPref, hand, false);
         if (hand == EnemyHand)
             //cardGo.GetComponent<CardInfoScr>().ShowCardInfo(card);
-            cardGo.GetComponent<CardInfoScr>().ShowCardInfo(card);
+            cardGo.GetComponent<CardInfoScr>().HideCardInfo(card);
         else
             cardGo.GetComponent<CardInfoScr>().ShowCardInfo(card);
         if (hand == SelfHand)
@@ -628,8 +625,18 @@ public class GameManagerScr : MonoBehaviour
             {
                 ResultTXT.text = "Enemy win";
             }
-            restartGame();
+
+            StartCoroutine(waiter());
         }
+        
+    }
+
+    IEnumerator waiter()
+    {
+        int time = 10;
+        while (time -- > 0)
+            yield return new WaitForSeconds(1);
+        restartGame();
         
     }
 }
