@@ -19,21 +19,6 @@ public class Game
 
     List<Card> GiveDeckCard()
     {
-        //System.Random rng = new System.Random();
-        /*
-        //List<Card> list = new List<Card>();
-        List<Card> list = CardManager.AllCards.OrderBy(x => rng.Next()).ToList();
-        for (int i = 0; i < list.Count; i++)
-        {
-            list = list.OrderBy(x => rng.Next()).ToList();
-        }
-        /*
-        for (int i = 0; i < CardManager.AllCards.Count; i++)
-          list.Add(CardManager.AllCards[Random.Range(0, CardManager.AllCards.Count)]);
-        */
-        //list = CardManager.AllCards;
-        
-        //List<Card> = 
         System.Random rand = new System.Random();
         List<Card> deck = CardManager.AllCards;
         for (int i = 0; i < deck.Count; i++)
@@ -54,11 +39,11 @@ public class GameManagerScr : MonoBehaviour
     public GameObject CardPref;
     public int Turn, Turntime = 30;
     public Button GiveCardFromDeck, OnEndTurn;
-    public TextMeshProUGUI ChangeTimeTXT;
+    public TextMeshProUGUI ChangeTimeTXT,BonusesTXT;
     private int bonus1 = 0, bonus2 = 0;
     private int penalties;
 
-    public GameObject ResultGO,MenuGO;
+    public GameObject ResultGO,MenuGO,RoolsGO;
     public TextMeshProUGUI ResultTXT;
     public Button startButton, roolsButton;
 
@@ -84,6 +69,9 @@ public class GameManagerScr : MonoBehaviour
         if (bonus1 > 0)
         {
             bonus1--;
+            CheckForResult();
+            if (IsPlayerTurn)
+                BonusesTXT.text = (bonus1 + bonus2).ToString();
             return;
         }
 
@@ -91,6 +79,8 @@ public class GameManagerScr : MonoBehaviour
         {
             bonus2--;
         }
+        if (IsPlayerTurn)
+            BonusesTXT.text = (bonus1 + bonus2).ToString();
         CheckForResult();
     }
 
@@ -119,12 +109,13 @@ public class GameManagerScr : MonoBehaviour
         GameFieldCards.Clear();
         BufferFieldCards.Clear();
         MenuGO.SetActive(true);
-        //startGame();
+       
 
     }
 
      public void startGame()
-    {
+     { 
+         BonusesTXT.text = "0";
         MenuGO.SetActive(false);
         ResultGO.SetActive(false);
         currentGame = new Game();
@@ -178,6 +169,7 @@ public class GameManagerScr : MonoBehaviour
         {
             while (Turntime-- > 0)
             {
+                //BonusesTXT.text = (bonus1 + bonus2).ToString();
                 ChangeTimeTXT.text = Turntime.ToString();
                 yield return new WaitForSeconds(1);
             }
@@ -194,75 +186,19 @@ public class GameManagerScr : MonoBehaviour
         ChangeTurn();
     }
 
+    public void onRulesClick()
+    {
+        RoolsGO.SetActive(true);
+    }
+
+    public void onbBackClick()
+    {
+        RoolsGO.SetActive(false);
+    }
+
     void EnemyTurn(List<CardInfoScr> cards)
     {
-        
-/*        
-        List<CardInfoScr> itemsToRemove = new List<CardInfoScr>();
-        List<bool> isMatchedalready = new List<bool>();
-        bool WereAnyMatches = false;
 
-        foreach (CardInfoScr enemyCard in cards)
-        {
-            foreach ( CardInfoScr gameFieldCard in GameFieldCards)
-            {
-                if (enemyCard.selfCard.Number == gameFieldCard.selfCard.Number)
-                {
-                    itemsToRemove.Add(enemyCard);
-                    break;
-                }
-            }
-
-        for (int i = 0; i < GameFieldCards.Count; i++)
-            isMatchedalready.Add(false);
-        
-            for (int i = 0; i < cards.Count; i++)
-        {
-            for (int j = 0; j < GameFieldCards.Count; j++)
-            {
-                if (!isMatchedalready[j] && (cards[i].selfCard.Number == GameFieldCards[j].selfCard.Number || cards[i].selfCard.Number == 0  
-                        || GameFieldCards[j].selfCard.Number  == 0 ) )
-                {
-                    itemsToRemove.Add(cards[i]);
-                    isMatchedalready[j] = true;
-                    break;
-                }
-            }
-        }
-
-        foreach (CardInfoScr cardToDeal in itemsToRemove)
-        {
-            WereAnyMatches = true;
-            cardToDeal.ShowCardInfo(cardToDeal.selfCard);
-            cardToDeal.transform.SetParent(BufferField);
-            BufferFieldCards.Add(cardToDeal);
-            EnemyHandCards.Remove(cardToDeal);
-            CardsDeal();
-            Debug.Log("Bot has match with card " + cardToDeal.selfCard.Name);
-        }
-
-        while (CanDropOnGameField())
-        {
-            DecrementBonuses();
-            int cardindex = Random.Range(0, EnemyHandCards.Count - 1);
-            CardInfoScr card = cards[cardindex];
-            card.ShowCardInfo(card.selfCard);
-            card.transform.SetParent(GameField);
-            GameFieldCards.Add(card);
-            EnemyHandCards.Remove(card);
-        }
-        
-        if (!WereAnyMatches && EnemyHandCards.Count < 11)
-        {
-            Debug.Log("bot hasnt mached anу card");
-            int tmp = Random.Range(1, 3);
-            Debug.Log("tmp = " + tmp.ToString());
-            if (tmp > 1)
-                GiveCards(ref currentGame.GameDeck, EnemyHand, 1);
-        }
-
-
-*/ 
         List<List<CardInfoScr>> variants = new List<List<CardInfoScr>>(); 
         List<bool> isMatchedalready = new List<bool>();
         List<bool> checkEnField = new List<bool>();
@@ -324,52 +260,10 @@ public class GameManagerScr : MonoBehaviour
                 }
             }
         }
-        /*
-        
-        for (int gmfcard = 0; gmfcard < GameFieldCards.Count; gmfcard++)
-        {
-            isMatchedalready.Add(false);
-            for (int i = 0; i < cards.Count; i++)
-            {
-                bool needtoskip = false;
-                for (int j = i + 1; j < cards.Count; j++)
-                {
-                    
-                    if (!isMatchedalready[gmfcard] &&
-                        ((GameFieldCards[gmfcard].selfCard.Number ==
-                         (cards[i].selfCard.Number + cards[j].selfCard.Number) && cards[i].selfCard.Number != 0 && cards[j].selfCard.Number != 0) ||
-                         GameFieldCards[gmfcard].selfCard.Number == 0 ||
-                         (cards[i].selfCard.Number == 0 && cards[j].selfCard.Number < GameFieldCards[gmfcard].selfCard.Number  ) ||
-                         (cards[j].selfCard.Number == 0 && cards[i].selfCard.Number < GameFieldCards[gmfcard].selfCard.Number )))
-                    {
-                        variants.Add(new List<CardInfoScr> { cards[i], cards[j] });
-                        isMatchedalready[gmfcard] = true;
-                        needtoskip = true;
-                        break;
-                    }
-
-                }
-
-                if ((GameFieldCards[gmfcard].selfCard.Number == cards[i].selfCard.Number ||
-                     GameFieldCards[gmfcard].selfCard.Number == 0 || cards[i].selfCard.Number == 0) &&
-                    !isMatchedalready[gmfcard] && !needtoskip)
-                {
-                    variants.Add(new List<CardInfoScr> { cards[i] });
-                    isMatchedalready[gmfcard] = true;
-                }
-            }
-        }
-        */
-        
+      
         foreach (var cardToDealList in variants)
         {
-            WereAnyMatches = true;/*
-            cardToDeal.ShowCardInfo(cardToDeal.selfCard);
-            cardToDeal.transform.SetParent(BufferField);
-            BufferFieldCards.Add(cardToDeal);
-            EnemyHandCards.Remove(cardToDeal);
-            CardsDeal();
-            Debug.Log("Bot has match with card " + cardToDeal.selfCard.Name);*/
+            WereAnyMatches = true;
             String tmp = "";
             foreach (var cardToDeal in cardToDealList)
             {
@@ -391,7 +285,7 @@ public class GameManagerScr : MonoBehaviour
             
             CardsDeal();
         }
-        while (CanDropOnGameField() && EnemyHandCards.Count > 0)
+        while (CanDropOnGameField() && EnemyHandCards.Count > 0 && !IsPlayerTurn)
         {
             
             DecrementBonuses();
@@ -426,26 +320,7 @@ public class GameManagerScr : MonoBehaviour
         StartCoroutine(TurnFunc());
     }
 
-    /*public void Awards()
-    {
-        Debug.Log("b1 = " + bonus1.ToString() + " b2 = " + bonus2.ToString());
-        if (bonus2 + bonus1 != 0)
-        {
-            
-            int tmp = GameFieldCards.Count;
-            while (PlayerHandCards.Count > 0 &&(GameFieldCards.Count < tmp + bonus2 + bonus1))
-           
-            {
-                ChangeTimeTXT.text = Turntime.ToString();
-                CanDropOnGameField = true;
-
-            }
-            GiveCards(ref currentGame.GameDeck,EnemyHand,bonus2);
-            CanDropOnGameField = false;
-        }
-
-       
-    }*/
+  
    
     public bool CanDropOnGameField()
     {
@@ -464,11 +339,12 @@ public class GameManagerScr : MonoBehaviour
             else 
                 GiveCards(ref currentGame.GameDeck,SelfHand,penalties);
         }
-           // GiveCards(ref currentGame.GameDeck,EnemyHand,penalties);
+          
         StopAllCoroutines();
         bonus1 = 0;
         bonus2 = 0;
         penalties = 0;
+        BonusesTXT.text = "0";
         Turn++;
         GiveCardFromDeck.interactable = IsPlayerTurn;
         OnEndTurn.interactable = IsPlayerTurn;
@@ -536,9 +412,11 @@ public class GameManagerScr : MonoBehaviour
             if (card.selfCard.Color == BufferFieldCards[0].selfCard.Color ||
                 BufferFieldCards[0].selfCard.Color == "black" || card.selfCard.Color == "black")
             {
-                Debug.Log(BufferFieldCards[0].selfCard.Color  + " " + BufferFieldCards[0].selfCard.Name + " has bonused 1");
-               
+                Debug.Log(BufferFieldCards[0].selfCard.Color + " " + BufferFieldCards[0].selfCard.Name +
+                          " has bonused 1");
                 bonus1++;
+                if (IsPlayerTurn)
+                    BonusesTXT.text = (bonus1 + bonus2).ToString();
             }
              
             
@@ -554,6 +432,8 @@ public class GameManagerScr : MonoBehaviour
                           BufferFieldCards[1].selfCard.Color + " " + BufferFieldCards[1].selfCard.Name +  " has bonused 2");
                 bonus2++;
                 penalties++;
+                if (IsPlayerTurn)
+                    BonusesTXT.text = (bonus1 + bonus2).ToString();
             }
         }
 
@@ -569,7 +449,7 @@ public class GameManagerScr : MonoBehaviour
             for (int i = 0; i < BufferFieldCards.Count(); i++)
             {
                 CardInfoScr tmp = BufferFieldCards[0];
-                //BufferFieldCards[0].ShowCardInfo(cardToDeal.selfCard);
+                
                 if (IsPlayerTurn)
                 {
                     tmp.transform.SetParent(SelfHand);
@@ -613,8 +493,9 @@ public class GameManagerScr : MonoBehaviour
 
     public void CheckForResult()
     {
-        if (PlayerHandCards.Count == 0 || EnemyHandCards.Count == 0) 
+        if (PlayerHandCards.Count == 0 || EnemyHandCards.Count == 0)
         {
+            BonusesTXT.text = "";
             ResultGO.SetActive(true);
             StopAllCoroutines();
             if (PlayerHandCards.Count == 0)
@@ -623,7 +504,7 @@ public class GameManagerScr : MonoBehaviour
             }
             else
             {
-                ResultTXT.text = "Enemy win";
+                ResultTXT.text = "Enemy wins";
             }
 
             StartCoroutine(waiter());

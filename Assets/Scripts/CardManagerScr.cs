@@ -15,8 +15,6 @@ public struct Card
     public Card(string name, string logoPath,int number,string color)
     {
         Name = name;
-        //Logo = Resources.Load<Sprite>(logoPath)
-        //Debug.Assert(Logo != null, nameof(Logo) + " != null")
         Logo = Resources.Load(logoPath) as Texture2D;
         Number = number;
         Color = color;

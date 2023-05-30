@@ -27,8 +27,5 @@ public class CardInfoScr : MonoBehaviour
     }
 
 
-    public void Start()
-    {
-        //ShowCardInfo(CardManager.AllCards[transform.GetSiblingIndex()]);
-    }
+   
 }
